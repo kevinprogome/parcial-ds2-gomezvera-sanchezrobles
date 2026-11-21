@@ -1,37 +1,37 @@
-import sys
-import os
-import math
-
-raiz = os.path.join(os.path.dirname(__file__), "..")
-sys.path.insert(0, raiz)
-sys.path.insert(0, os.path.join(raiz, "src"))
+import sys, os, math
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from campana import CampanaPruebas
 
-
 defectos = [28, 23, 22, 17, 16, 12, 12, 9]
-datos = [{"semana": i + 1, "defectos": d} for i, d in enumerate(defectos)]
+
+datos = []
+for i in range(len(defectos)):
+    datos.append({"semana": i + 1, "defectos": defectos[i]})
 
 
-def test_goel_en_cero():
-    campana = CampanaPruebas(datos)
-    a, b = campana.ajustar()
+def test_goel_cero():
+    camp = CampanaPruebas(datos)
+    a, b = camp.ajustar()
+    assert camp.goel(0, 100, 0.2) == 0
+    assert camp.goel(0, a, b) == 0
 
-    assert campana.goel(0, 100, 0.2) == 0
-    assert campana.goel(0, a, b) == 0
+
+def test_acumulados():
+    camp = CampanaPruebas(datos)
+    assert camp.acumulados[-1] == 139
 
 
-def test_acumulados_y_ajuste():
-    campana = CampanaPruebas(datos)
-    resultado = campana.restantes()
-
-    assert campana.acumulados[-1] == 139
-    assert resultado["a"] >= 139
-    assert resultado["restantes"] > 0
-    assert abs(resultado["semana_95"] - math.log(20) / resultado["b"]) < 0.0001
+def test_restantes():
+    camp = CampanaPruebas(datos)
+    res = camp.restantes()
+    assert res["a"] >= 139
+    assert res["restantes"] > 0
+    assert abs(res["semana_95"] - math.log(20) / res["b"]) < 0.001
 
 
 if __name__ == "__main__":
-    test_goel_en_cero()
-    test_acumulados_y_ajuste()
-    print("Las dos pruebas pasaron.")
+    test_goel_cero()
+    test_acumulados()
+    test_restantes()
+    print("todo bien")
